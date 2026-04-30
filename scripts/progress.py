@@ -16,18 +16,39 @@ IS_GITHUB_ACTIONS = os.environ.get('GITHUB_ACTIONS') == 'true'
 
 DEFAULT_RATING = 1000
 
+# Pastas do Codeforces (com rating)
 RATING_PASTAS = {
     "800-1200": (800, 1200),
     "1200-1600": (1200, 1600),
     "1600+": (1600, 5000)
 }
 
-OUTRAS_PASTAS = ["sem_rating", "nao_classificados"]
+# Pasta para tudo que não é Codeforces ou não tem rating
+PASTA_MISC = "misc"
+
 CACHE_FILE = SCRIPT_DIR / "problems_cache.json"
 # ======================================================
 
+def is_codeforces_file(nome):
+    """Verifica se o nome do arquivo parece ser do Codeforces (tem ID como 4A, 158A, etc.)"""
+    match = re.match(r'^(\d+[A-Z]\d*)', nome)
+    if not match:
+        match = re.match(r'^(\d+[A-Z])', nome)
+    if not match:
+        match = re.match(r'^([A-Z]\d*)', nome)
+    return match is not None
+
+def extract_codeforces_id(nome):
+    """Extrai o ID do Codeforces do nome do arquivo"""
+    match = re.match(r'(\d+[A-Z]\d*)', nome)
+    if not match:
+        match = re.match(r'(\d+[A-Z])', nome)
+    if not match:
+        match = re.match(r'^([A-Z]\d*)', nome)
+    return match.group(1) if match else None
+
 def get_problem_rating(problem_id):
-    """Busca o rating de um problema no Codeforces"""
+    """Busca o rating de um problema do Codeforces"""
     match = re.match(r'(\d+)([A-Z]\d*)', problem_id)
     if not match:
         match = re.match(r'([A-Z]\d*)', problem_id)
@@ -48,7 +69,6 @@ def get_problem_rating(problem_id):
         except:
             pass
 
-    # Se estiver no GitHub Actions, não chama API (só usa cache)
     if IS_GITHUB_ACTIONS:
         return None
 
@@ -89,16 +109,17 @@ def get_rating_folder(rating):
     return "1600+"
 
 def organizar_arquivos():
-    """Organiza arquivos (pular no GitHub Actions)"""
+    """Organiza arquivos: Codeforces com rating vai para pastas, resto vai para misc/"""
     if IS_GITHUB_ACTIONS:
         print("\n🤖 GitHub Actions: pulando organização (apenas geração de gráfico)")
         return None
 
+    # Criar pastas necessárias
     for folder in RATING_PASTAS.keys():
         (BASE_DIR / folder).mkdir(exist_ok=True)
-    for folder in OUTRAS_PASTAS:
-        (BASE_DIR / folder).mkdir(exist_ok=True)
+    (BASE_DIR / PASTA_MISC).mkdir(exist_ok=True)
 
+    # Procurar arquivos .py na raiz (ignorar o próprio script)
     arquivos = [f for f in BASE_DIR.glob("*.py") if f.parent == BASE_DIR]
     arquivos = [f for f in arquivos if f.name not in ["progress.py"]]
 
@@ -110,23 +131,20 @@ def organizar_arquivos():
 
     stats = {
         "movidos": 0,
-        "sem_rating": 0,
-        "nao_classificados": 0,
+        "codeforces": 0,
+        "misc": 0,
         "por_pasta": {folder: 0 for folder in RATING_PASTAS.keys()}
     }
+    stats["por_pasta"][PASTA_MISC] = 0
 
     for arquivo in arquivos:
         nome = arquivo.stem
+        print(f"\n📄 Processando: {nome}")
 
-        match = re.match(r'(\d+[A-Z]\d*)', nome)
-        if not match:
-            match = re.match(r'(\d+[A-Z])', nome)
-        if not match:
-            match = re.match(r'^([A-Z]\d*)', nome)
-
-        if match:
-            problem_id = match.group(1)
-            print(f"\n📄 Processando: {nome}")
+        # Verificar se é Codeforces (tem ID no formato)
+        if is_codeforces_file(nome):
+            problem_id = extract_codeforces_id(nome)
+            print(f"  🔍 Identificado como Codeforces: ID = {problem_id}")
             rating = get_problem_rating(problem_id)
 
             if rating is not None:
@@ -137,42 +155,58 @@ def organizar_arquivos():
                     shutil.move(str(arquivo), str(destino_path))
                     print(f"  📂 Movido para: {destino}/")
                     stats["movidos"] += 1
+                    stats["codeforces"] += 1
                     stats["por_pasta"][destino] += 1
                 else:
-                    print(f"  ⚠️ Arquivo já existe")
+                    print(f"  ⚠️ Arquivo já existe em {destino}")
             else:
-                destino_path = BASE_DIR / "sem_rating" / arquivo.name
+                # Codeforces sem rating vai para misc
+                destino_path = BASE_DIR / PASTA_MISC / arquivo.name
                 shutil.move(str(arquivo), str(destino_path))
-                print(f"  📂 Movido para: sem_rating/")
-                stats["sem_rating"] += 1
+                print(f"  📂 Movido para: {PASTA_MISC}/ (CF sem rating)")
+                stats["movidos"] += 1
+                stats["misc"] += 1
+                stats["por_pasta"][PASTA_MISC] += 1
         else:
-            destino_path = BASE_DIR / "nao_classificados" / arquivo.name
+            # Não é Codeforces → misc
+            destino_path = BASE_DIR / PASTA_MISC / arquivo.name
             shutil.move(str(arquivo), str(destino_path))
-            print(f"\n⚠️ {nome}: não foi possível extrair ID")
-            print(f"  📂 Movido para: nao_classificados/")
-            stats["nao_classificados"] += 1
+            print(f"  📂 Movido para: {PASTA_MISC}/")
+            stats["movidos"] += 1
+            stats["misc"] += 1
+            stats["por_pasta"][PASTA_MISC] += 1
 
     return stats
 
 def gerar_grafico():
-    """Gera o gráfico de progresso"""
+    """Gera o gráfico de progresso (Codeforces por rating + misc)"""
     data = {}
+    
+    # Contar Codeforces por rating
     for folder in RATING_PASTAS.keys():
         folder_path = BASE_DIR / folder
         if folder_path.exists():
             data[folder] = len([x for x in folder_path.glob("*.py")])
         else:
             data[folder] = 0
+    
+    # Contar misc
+    misc_path = BASE_DIR / PASTA_MISC
+    if misc_path.exists():
+        data[PASTA_MISC] = len([x for x in misc_path.glob("*.py")])
+    else:
+        data[PASTA_MISC] = 0
 
+    # Remover pastas vazias
     data = {k: v for k, v in data.items() if v > 0}
 
     if not data:
         print("\n📊 Nenhum dado para exibir no gráfico!")
         return False
 
-    cores = ['#ff6b6b', '#feca57', '#48dbfb']
+    cores = ['#ff6b6b', '#feca57', '#48dbfb', '#a0a0a0']
 
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(12, 6))
 
     barras = plt.bar(data.keys(), data.values(), color=cores[:len(data)],
                      edgecolor='black', linewidth=1.5)
@@ -184,7 +218,7 @@ def gerar_grafico():
                  fontsize=11, fontweight='bold')
 
     plt.title("🚀 Codeforces Progress", fontsize=16, fontweight='bold', pad=20)
-    plt.xlabel("⭐ Rating", fontsize=12, fontweight='bold')
+    plt.xlabel("⭐ Dificuldade / Categoria", fontsize=12, fontweight='bold')
     plt.ylabel("📚 Problemas Resolvidos", fontsize=12, fontweight='bold')
     plt.grid(axis='y', alpha=0.3, linestyle='--')
 
@@ -196,6 +230,10 @@ def gerar_grafico():
     output_path = BASE_DIR / "progress.png"
     plt.savefig(output_path, dpi=150, bbox_inches='tight')
     print(f"\n📊 Gráfico salvo: {output_path}")
+    print(f"\n📈 Resumo:")
+    for categoria, qtd in data.items():
+        print(f"  {categoria}: {qtd} problemas")
+    print(f"  Total: {sum(data.values())} problemas")
 
     return True
 
@@ -204,13 +242,13 @@ def mostrar_estatisticas(stats):
         return
 
     print("\n" + "="*50)
-    print("📊 ESTATÍSTICAS")
+    print("📊 ESTATÍSTICAS DA ORGANIZAÇÃO")
     print("="*50)
-    print(f"\n✅ Movidos: {stats['movidos']}")
-    print(f"⚠️ Sem rating: {stats['sem_rating']}")
-    print(f"❓ Não classificados: {stats['nao_classificados']}")
+    print(f"\n✅ Total movidos: {stats['movidos']}")
+    print(f"  ├─ Codeforces com rating: {stats['codeforces']}")
+    print(f"  └─ Misc (outros judges + CF sem rating): {stats['misc']}")
 
-    print("\n📁 Distribuição:")
+    print("\n📁 Distribuição final:")
     for pasta, count in stats['por_pasta'].items():
         if count > 0:
             print(f"  {pasta}: {count}")
@@ -219,8 +257,8 @@ def buscar_rating_manual():
     if IS_GITHUB_ACTIONS:
         return
 
-    print("\n🔍 Buscar rating")
-    problem_id = input("Digite o ID (ex: 4A): ").strip()
+    print("\n🔍 Buscar rating de problema do Codeforces")
+    problem_id = input("Digite o ID (ex: 4A, 158A): ").strip()
     if problem_id:
         rating = get_problem_rating(problem_id)
         if rating:
@@ -229,21 +267,20 @@ def buscar_rating_manual():
 
 def menu_principal():
     print(f"\n📂 Base: {BASE_DIR}")
+    print(f"📁 Pasta misc: {PASTA_MISC}/ (outros judges + CF sem rating)")
 
-    # Se estiver no GitHub Actions, só gera o gráfico
     if IS_GITHUB_ACTIONS:
         print("\n🤖 GitHub Actions: gerando gráfico automaticamente...")
         gerar_grafico()
         return
 
-    # Modo interativo (local)
     while True:
         print("\n" + "="*50)
-        print("🎯 CODEFORCES PROGRESS")
+        print("🎯 ORGANIZADOR DE PROBLEMAS")
         print("="*50)
         print("\n1️⃣  Organizar arquivos")
         print("2️⃣  Gerar gráfico")
-        print("3️⃣  Buscar rating")
+        print("3️⃣  Buscar rating (Codeforces)")
         print("4️⃣  Sair")
 
         opcao = input("\n👉 Escolha (1-4): ").strip()
