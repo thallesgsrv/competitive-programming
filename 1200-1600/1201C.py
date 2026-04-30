@@ -1,20 +1,22 @@
-def total_produzido(T, k):
-    soma = 0
-    for tempo in k:
-        soma += T // tempo
-        if soma >= t:
-            return t
-    return soma
+n, k = map(int, input().split())
+a = list(map(int, input().split()))
+a.sort()
 
-n, t = map(int, input().split())
-k = list(map(int, input().split()))
+mid = n // 2
+low, high = a[mid], a[mid] + k
 
-low, high = 1, 10**18
 while low < high:
-    mid = (low + high) // 2
-    if total_produzido(mid, k) >= t:
-        high = mid
+    target = (low + high + 1) // 2
+    total = 0
+    for i in range(mid, n):
+        if a[i] < target:
+            total += target - a[i]
+            if total > k:
+                break
+    
+    if total <= k:
+        low = target
     else:
-        low = mid + 1
+        high = target - 1
 
 print(low)
