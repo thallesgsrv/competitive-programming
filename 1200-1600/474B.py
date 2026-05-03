@@ -16,3 +16,6 @@ for q in Ma:
         else:
             low = mid + 1
     print(low + 1)
+
+# This code is solving a problem where we have two lists of integers, `Na` and `Ma`. The list `Na` represents the number of items in different categories, and the list `Ma` contains queries that ask for the category index corresponding to a certain cumulative count. The code first calculates the cumulative sums of the `Na` list and stores them in the `limites` list. Then, for each query in `Ma`, it performs a binary search on the `limites` list to find the smallest index where the cumulative count is greater than or equal to the query value. Finally, it prints the category index (1-based) for each query.
+# The binary search is efficient for this problem because the `limites` list is sorted in non-decreasing order, allowing us to quickly find the correct category index for each query.

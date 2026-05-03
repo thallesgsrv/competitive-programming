@@ -13,3 +13,6 @@ for c in cidades:
     max_distancia = max(max_distancia, distacia)
 
 print(max_distancia)
+
+# This code is solving a problem where we have two lists: `cidades` (cities) and `torres` (towers). The goal is to find the maximum distance from any city to the nearest tower. The code iterates through each city and uses a while loop to find the closest tower by comparing the distances to the current tower and the next tower. It keeps track of the maximum distance found and prints it at the end.
+# The variable `j` is used to keep track of the current tower being compared, and `max_distancia` is updated whenever a greater distance is found. Finally, the code outputs the maximum distance from any city to the nearest tower.
