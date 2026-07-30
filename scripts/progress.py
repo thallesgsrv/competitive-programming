@@ -27,6 +27,9 @@ RATING_PASTAS = {
 PASTA_MISC = "misc"
 
 CACHE_FILE = SCRIPT_DIR / "problems_cache.json"
+
+# Extensões suportadas
+EXTENSOES_SUPORTADAS = {'.py', '.cpp'}
 # ======================================================
 
 def is_codeforces_file(nome):
@@ -119,12 +122,17 @@ def organizar_arquivos():
         (BASE_DIR / folder).mkdir(exist_ok=True)
     (BASE_DIR / PASTA_MISC).mkdir(exist_ok=True)
 
-    # Procurar arquivos .py na raiz (ignorar o próprio script)
-    arquivos = [f for f in BASE_DIR.glob("*.py") if f.parent == BASE_DIR]
+    # Procurar arquivos .py e .cpp na raiz (ignorar o próprio script)
+    arquivos = []
+    for ext in EXTENSOES_SUPORTADAS:
+        arquivos.extend([f for f in BASE_DIR.glob(f"*{ext}") if f.parent == BASE_DIR])
+    
+    # Ignorar arquivos do sistema e o próprio script
     arquivos = [f for f in arquivos if f.name not in ["progress.py"]]
+    arquivos = [f for f in arquivos if not f.name.startswith('.')]
 
     if not arquivos:
-        print("\n📭 Nenhum arquivo .py encontrado!")
+        print("\n📭 Nenhum arquivo .py ou .cpp encontrado!")
         return None
 
     print(f"\n📁 Encontrados {len(arquivos)} arquivos\n")
@@ -139,7 +147,8 @@ def organizar_arquivos():
 
     for arquivo in arquivos:
         nome = arquivo.stem
-        print(f"\n📄 Processando: {nome}")
+        extensao = arquivo.suffix
+        print(f"\n📄 Processando: {nome}{extensao}")
 
         # Verificar se é Codeforces (tem ID no formato)
         if is_codeforces_file(nome):
@@ -182,18 +191,24 @@ def gerar_grafico():
     """Gera o gráfico de progresso (Codeforces por rating + misc)"""
     data = {}
     
-    # Contar Codeforces por rating
+    # Contar Codeforces por rating (ambas extensões)
     for folder in RATING_PASTAS.keys():
         folder_path = BASE_DIR / folder
         if folder_path.exists():
-            data[folder] = len([x for x in folder_path.glob("*.py")])
+            total = 0
+            for ext in EXTENSOES_SUPORTADAS:
+                total += len([x for x in folder_path.glob(f"*{ext}")])
+            data[folder] = total
         else:
             data[folder] = 0
     
-    # Contar misc
+    # Contar misc (ambas extensões)
     misc_path = BASE_DIR / PASTA_MISC
     if misc_path.exists():
-        data[PASTA_MISC] = len([x for x in misc_path.glob("*.py")])
+        total = 0
+        for ext in EXTENSOES_SUPORTADAS:
+            total += len([x for x in misc_path.glob(f"*{ext}")])
+        data[PASTA_MISC] = total
     else:
         data[PASTA_MISC] = 0
 
@@ -268,6 +283,7 @@ def buscar_rating_manual():
 def menu_principal():
     print(f"\n📂 Base: {BASE_DIR}")
     print(f"📁 Pasta misc: {PASTA_MISC}/ (outros judges + CF sem rating)")
+    print(f"📄 Extensões suportadas: {', '.join(EXTENSOES_SUPORTADAS)}")
 
     if IS_GITHUB_ACTIONS:
         print("\n🤖 GitHub Actions: gerando gráfico automaticamente...")
