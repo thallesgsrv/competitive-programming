@@ -25,7 +25,7 @@ string solve(int x, int n, int m, vector<int>& degraus, vector<int>& armadilhas)
             }
         }
     }
-
+    
     return dp[x] ? "Yes" : "No";
 }
 
