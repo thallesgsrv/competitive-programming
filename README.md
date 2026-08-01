@@ -8,6 +8,7 @@ Este repositório reúne minhas soluções de problemas de **Programação Compe
 
 Os problemas são organizados automaticamente por faixa de dificuldade (rating).
 
+```text
 meu-repo/
 ├── exercises/
 │   ├── 800-1200/
@@ -46,6 +47,7 @@ meu-repo/
 │
 ├── progress.png
 └── README.md
+```
 
 ---
 
