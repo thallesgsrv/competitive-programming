@@ -1,74 +1,124 @@
 # 🚀 Competitive Programming Repository
 
-Este repositório contém minhas soluções de problemas de programação competitiva, principalmente da plataforma Codeforces
+Este repositório reúne minhas soluções de problemas de **Programação Competitiva**, principalmente da plataforma **Codeforces**, além de uma coleção de templates para consulta rápida durante as competições.
 
 ---
 
-# 📁 Estrutura do projeto
+# 📁 Estrutura do Projeto
 
-Os problemas estão organizados automaticamente por nível de dificuldade (rating):
+Os problemas são organizados automaticamente por faixa de dificuldade (rating).
 
-- 800-1200 → problemas fáceis (fundamentos)
-- 1200-1600 → problemas intermediários  
-- 1600+ → problemas avançados  
-
-Cada arquivo representa uma solução em Python.
-
-Exemplo de nomes:
-
-1914A.py  
-2218F.py  
+```text
+meu-repo/
+├── exercises/
+│   ├── 800-1200/
+│   │   ├── 1914A.py
+│   │   └── ...
+│   ├── 1200-1600/
+│   │   └── ...
+│   ├── 1600+/
+│   │   └── ...
+│   └── misc/
+│       └── ...
+│
+├── templates/
+│   ├── 00_entrada_saida.py
+│   ├── 01_estruturas_dados.py
+│   ├── 02_matematica.py
+│   ├── 03_progressoes.py
+│   ├── 04_combinatoria.py
+│   ├── 05_geometria.py
+│   ├── 06_guloso.py
+│   ├── 07_backtracking.py
+│   ├── 08_dp.py
+│   ├── 09_grafos.py
+│   ├── 10_dijkstra.py
+│   ├── 11_dsu.py
+│   ├── 12_kruskal.py
+│   ├── 13_topologico.py
+│   └── 14_jogos.py
+│
+├── scripts/
+│   └── progress.py
+│
+├── progress.png
+└── README.md
+```
 
 ---
 
-# 🧠 Objetivo
+# 📚 Templates
 
-- Praticar algoritmos e estruturas de dados  
-- Melhorar raciocínio lógico  
-- Evoluir em programação competitiva  
-- Acompanhar progresso real por dificuldade  
+A pasta `notebook/topics` contém implementações reutilizáveis dos principais algoritmos e estruturas de dados.
+
+| Arquivo | Conteúdo |
+|:--------:|-----------|
+| `00_entrada_saida.py` | Entrada e saída rápida |
+| `01_estruturas_dados.py` | Estruturas de dados |
+| `02_matematica.py` | Matemática básica |
+| `03_progressoes.py` | Progressões |
+| `04_combinatoria.py` | Análise combinatória |
+| `05_geometria.py` | Geometria computacional |
+| `06_guloso.py` | Algoritmos gulosos |
+| `07_backtracking.py` | Backtracking |
+| `08_dp.py` | Programação dinâmica |
+| `09_grafos.py` | DFS e BFS |
+| `10_dijkstra.py` | Menor caminho |
+| `11_dsu.py` | Union-Find (DSU) |
+| `12_kruskal.py` | Árvore Geradora Mínima |
+| `13_topologico.py` | Ordenação topológica |
+| `14_jogos.py` | Teoria dos jogos |
+
+---
+
+# 🎯 Objetivos
+
+- Resolver problemas de Programação Competitiva.
+- Aprimorar algoritmos e estruturas de dados.
+- Evoluir o raciocínio lógico.
+- Construir uma biblioteca pessoal de templates.
+- Acompanhar meu progresso por nível de dificuldade.
 
 ---
 
 # 📊 Progresso
 
-A imagem abaixo mostra a quantidade de problemas resolvidos por faixa de rating:
+A imagem abaixo mostra a quantidade de problemas resolvidos em cada faixa de rating.
 
-![Progress](progress.png)
-
----
-
-# ⚙️ Automação
-
-Este repositório possui automação para:
-
-- Contar problemas por pasta  
-- Gerar gráfico de progresso automaticamente  
-- Atualizar imagem a cada commit  
-- Manter organização por rating  
+<p align="center">
+  <img src="progress.png" width="650">
+</p>
 
 ---
 
-# 📈 Evolução
+# 📈 Faixas de Rating
 
-| Faixa | Descrição |
-|------|-----------|
-| 800 - 1200 | Básico |
-| 1200 - 1600 | Intermediário |
-| 1600+ | Avançado |
-
----
-
-# 🤖 Atualização automática
-
-O gráfico `progress.png` é gerado automaticamente via script Python:
-
-- Conta arquivos em cada pasta  
-- Gera gráfico com matplotlib  
-- Atualiza via GitHub Actions  
+| Rating | Nível |
+|:------:|:------|
+| **800–1200** | Básico |
+| **1200–1600** | Intermediário |
+| **1600+** | Avançado |
 
 ---
 
-# 🧑‍💻 Autor
+# ⚙️ Atualização Automática
+
+O gráfico `progress.png` é gerado automaticamente por um script em Python que:
+
+- conta a quantidade de soluções em cada pasta;
+- gera o gráfico com Matplotlib;
+- atualiza a imagem via GitHub Actions.
+
+---
+
+# 🛠️ Tecnologias
+
+- Python
+- Matplotlib
+- GitHub Actions
+
+---
+
+# 👨‍💻 Autor
 
 **Thalles Saraiva**

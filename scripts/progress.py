@@ -9,7 +9,13 @@ import matplotlib.pyplot as plt
 
 # ==================== CONFIGURAÇÕES ====================
 SCRIPT_DIR = Path(__file__).parent
-BASE_DIR = SCRIPT_DIR.parent
+BASE_DIR = SCRIPT_DIR.parent if SCRIPT_DIR.name == "scripts" else SCRIPT_DIR
+
+# Se estiver em scripts/, volta para a raiz
+if SCRIPT_DIR.name == "scripts":
+    BASE_DIR = SCRIPT_DIR.parent
+
+EXERCISES_DIR = BASE_DIR / "exercises"
 
 # Detectar se está rodando no GitHub Actions
 IS_GITHUB_ACTIONS = os.environ.get('GITHUB_ACTIONS') == 'true'
@@ -30,34 +36,49 @@ CACHE_FILE = SCRIPT_DIR / "problems_cache.json"
 
 # Extensões suportadas
 EXTENSOES_SUPORTADAS = {'.py', '.cpp'}
+
+# Arquivos a ignorar
+IGNORAR = {
+    'progress.py', '.gitkeep', '__init__.py', 'README.md', 
+    'requirements.txt', '.gitignore', 'progress.png'
+}
+
+# Pastas a IGNORAR (não procurar arquivos dentro delas)
+PASTAS_IGNORAR = {
+    'exercises', 'scripts', 'templates', 'notebook', 'assets',
+    '.git', '__pycache__', '.venv', 'venv', 'env'
+}
 # ======================================================
 
+
 def is_codeforces_file(nome):
-    """Verifica se o nome do arquivo parece ser do Codeforces (tem ID como 4A, 158A, etc.)"""
-    match = re.match(r'^(\d+[A-Z]\d*)', nome)
+    """Verifica se o nome do arquivo parece ser do Codeforces"""
+    match = re.match(r'^(\d+[A-Z][a-z]?\d*)', nome)
     if not match:
         match = re.match(r'^(\d+[A-Z])', nome)
     if not match:
         match = re.match(r'^([A-Z]\d*)', nome)
     return match is not None
 
+
 def extract_codeforces_id(nome):
     """Extrai o ID do Codeforces do nome do arquivo"""
-    match = re.match(r'(\d+[A-Z]\d*)', nome)
+    match = re.match(r'(\d+[A-Z][a-z]?\d*)', nome)
     if not match:
         match = re.match(r'(\d+[A-Z])', nome)
     if not match:
         match = re.match(r'^([A-Z]\d*)', nome)
     return match.group(1) if match else None
 
+
 def get_problem_rating(problem_id):
     """Busca o rating de um problema do Codeforces"""
-    match = re.match(r'(\d+)([A-Z]\d*)', problem_id)
+    match = re.match(r'(\d+)([A-Z][a-z]?\d*)', problem_id)
     if not match:
         match = re.match(r'([A-Z]\d*)', problem_id)
         if not match:
             return None
-
+    
     contest_id = match.group(1)
     index = match.group(2) if len(match.groups()) > 1 else match.group(1)
 
@@ -86,17 +107,17 @@ def get_problem_rating(problem_id):
             for problem in data['result']['problems']:
                 if str(problem.get('contestId')) == contest_id and problem.get('index') == index:
                     rating = problem.get('rating')
-
+                    
                     if rating is None:
                         rating = DEFAULT_RATING
                     else:
                         print(f"  ✅ {problem_id}: rating = {rating}")
-
+                    
                     cache_key = f"{contest_id}{index}"
                     cache[cache_key] = rating
                     with open(CACHE_FILE, 'w') as f:
                         json.dump(cache, f, indent=2)
-
+                    
                     sleep(0.3)
                     return rating
             return None
@@ -105,37 +126,56 @@ def get_problem_rating(problem_id):
         print(f"  ❌ Erro: {e}")
         return None
 
+
 def get_rating_folder(rating):
     for folder, (min_r, max_r) in RATING_PASTAS.items():
         if min_r <= rating < max_r:
             return folder
     return "1600+"
 
+
 def organizar_arquivos():
-    """Organiza arquivos: Codeforces com rating vai para pastas, resto vai para misc/"""
+    """Organiza arquivos: busca apenas na RAIZ"""
     if IS_GITHUB_ACTIONS:
         print("\n🤖 GitHub Actions: pulando organização (apenas geração de gráfico)")
         return None
 
     # Criar pastas necessárias
-    for folder in RATING_PASTAS.keys():
-        (BASE_DIR / folder).mkdir(exist_ok=True)
-    (BASE_DIR / PASTA_MISC).mkdir(exist_ok=True)
+    EXERCISES_DIR.mkdir(exist_ok=True)
 
-    # Procurar arquivos .py e .cpp na raiz (ignorar o próprio script)
-    arquivos = []
-    for ext in EXTENSOES_SUPORTADAS:
-        arquivos.extend([f for f in BASE_DIR.glob(f"*{ext}") if f.parent == BASE_DIR])
+    for folder in RATING_PASTAS.keys():
+        (EXERCISES_DIR / folder).mkdir(parents=True, exist_ok=True)
+
+    (EXERCISES_DIR / PASTA_MISC).mkdir(parents=True, exist_ok=True)
+
+    # ===== BUSCAR ARQUIVOS APENAS NA RAIZ =====
+    print(f"\n📂 Buscando arquivos APENAS na raiz: {BASE_DIR}")
     
-    # Ignorar arquivos do sistema e o próprio script
-    arquivos = [f for f in arquivos if f.name not in ["progress.py"]]
+    arquivos = []
+    
+    # Procura arquivos .py e .cpp na RAIZ do repositório
+    for ext in EXTENSOES_SUPORTADAS:
+        arquivos.extend([
+            f for f in BASE_DIR.glob(f"*{ext}")
+            if f.parent == BASE_DIR  # Apenas arquivos na raiz
+        ])
+
+    # Remover arquivos ignorados
+    arquivos = [f for f in arquivos if f.name not in IGNORAR]
     arquivos = [f for f in arquivos if not f.name.startswith('.')]
 
+    # Remover arquivos que estão em pastas ignoradas
+    arquivos = [
+        f for f in arquivos 
+        if not any(pasta in str(f.parent) for pasta in PASTAS_IGNORAR)
+    ]
+
     if not arquivos:
-        print("\n📭 Nenhum arquivo .py ou .cpp encontrado!")
+        print("\n📭 Nenhum arquivo .py ou .cpp encontrado na raiz!")
+        print(f"   Procurado em: {BASE_DIR}")
         return None
 
-    print(f"\n📁 Encontrados {len(arquivos)} arquivos\n")
+    print(f"\n📁 Encontrados {len(arquivos)} arquivos na raiz\n")
 
     stats = {
         "movidos": 0,
@@ -150,7 +190,7 @@ def organizar_arquivos():
         extensao = arquivo.suffix
         print(f"\n📄 Processando: {nome}{extensao}")
 
-        # Verificar se é Codeforces (tem ID no formato)
+        # Verificar se é Codeforces
         if is_codeforces_file(nome):
             problem_id = extract_codeforces_id(nome)
             print(f"  🔍 Identificado como Codeforces: ID = {problem_id}")
@@ -158,7 +198,7 @@ def organizar_arquivos():
 
             if rating is not None:
                 destino = get_rating_folder(rating)
-                destino_path = BASE_DIR / destino / arquivo.name
+                destino_path = EXERCISES_DIR / destino / arquivo.name
 
                 if not destino_path.exists():
                     shutil.move(str(arquivo), str(destino_path))
@@ -168,32 +208,47 @@ def organizar_arquivos():
                     stats["por_pasta"][destino] += 1
                 else:
                     print(f"  ⚠️ Arquivo já existe em {destino}")
+                    # Remove da raiz se já existe na pasta destino
+                    if arquivo.exists():
+                        arquivo.unlink()
+                        print(f"  🗑️ Removido da raiz (duplicado)")
             else:
-                # Codeforces sem rating vai para misc
-                destino_path = BASE_DIR / PASTA_MISC / arquivo.name
+                destino_path = EXERCISES_DIR / PASTA_MISC / arquivo.name
+                if not destino_path.exists():
+                    shutil.move(str(arquivo), str(destino_path))
+                    print(f"  📂 Movido para: {PASTA_MISC}/ (CF sem rating)")
+                    stats["movidos"] += 1
+                    stats["misc"] += 1
+                    stats["por_pasta"][PASTA_MISC] += 1
+                else:
+                    print(f"  ⚠️ Arquivo já existe em {PASTA_MISC}")
+                    if arquivo.exists():
+                        arquivo.unlink()
+                        print(f"  🗑️ Removido da raiz (duplicado)")
+        else:
+            destino_path = EXERCISES_DIR / PASTA_MISC / arquivo.name
+            if not destino_path.exists():
                 shutil.move(str(arquivo), str(destino_path))
-                print(f"  📂 Movido para: {PASTA_MISC}/ (CF sem rating)")
+                print(f"  📂 Movido para: {PASTA_MISC}/")
                 stats["movidos"] += 1
                 stats["misc"] += 1
                 stats["por_pasta"][PASTA_MISC] += 1
-        else:
-            # Não é Codeforces → misc
-            destino_path = BASE_DIR / PASTA_MISC / arquivo.name
-            shutil.move(str(arquivo), str(destino_path))
-            print(f"  📂 Movido para: {PASTA_MISC}/")
-            stats["movidos"] += 1
-            stats["misc"] += 1
-            stats["por_pasta"][PASTA_MISC] += 1
+            else:
+                print(f"  ⚠️ Arquivo já existe em {PASTA_MISC}")
+                if arquivo.exists():
+                    arquivo.unlink()
+                    print(f"  🗑️ Removido da raiz (duplicado)")
 
     return stats
+
 
 def gerar_grafico():
     """Gera o gráfico de progresso (Codeforces por rating + misc)"""
     data = {}
     
-    # Contar Codeforces por rating (ambas extensões)
+    # Contar Codeforces por rating
     for folder in RATING_PASTAS.keys():
-        folder_path = BASE_DIR / folder
+        folder_path = EXERCISES_DIR / folder
         if folder_path.exists():
             total = 0
             for ext in EXTENSOES_SUPORTADAS:
@@ -202,8 +257,8 @@ def gerar_grafico():
         else:
             data[folder] = 0
     
-    # Contar misc (ambas extensões)
-    misc_path = BASE_DIR / PASTA_MISC
+    # Contar misc
+    misc_path = EXERCISES_DIR / PASTA_MISC
     if misc_path.exists():
         total = 0
         for ext in EXTENSOES_SUPORTADAS:
@@ -252,6 +307,7 @@ def gerar_grafico():
 
     return True
 
+
 def mostrar_estatisticas(stats):
     if stats is None:
         return
@@ -268,6 +324,7 @@ def mostrar_estatisticas(stats):
         if count > 0:
             print(f"  {pasta}: {count}")
 
+
 def buscar_rating_manual():
     if IS_GITHUB_ACTIONS:
         return
@@ -279,6 +336,9 @@ def buscar_rating_manual():
         if rating:
             print(f"✅ Rating: {rating}")
             print(f"📂 Pasta: {get_rating_folder(rating)}")
+        else:
+            print("❌ Não foi possível encontrar o rating")
+
 
 def menu_principal():
     print(f"\n📂 Base: {BASE_DIR}")
@@ -318,11 +378,12 @@ def menu_principal():
         else:
             print("❌ Opção inválida")
 
+
 if __name__ == "__main__":
     try:
         import matplotlib
     except ImportError:
-        print("❌ Instale: pip install matplotlib")
+        print("❌ Instale: pip install matplotlib requests")
         exit(1)
 
     menu_principal()
