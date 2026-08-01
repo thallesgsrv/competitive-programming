@@ -8,21 +8,23 @@ Este repositório reúne minhas soluções de problemas de **Programação Compe
 
 Os problemas são organizados automaticamente por faixa de dificuldade (rating).
 
-```text
 meu-repo/
 ├── exercises/
 │   ├── 800-1200/
 │   │   ├── 1914A.py
 │   │   └── ...
+│   │
 │   ├── 1200-1600/
 │   │   └── ...
+│   │
 │   ├── 1600+/
 │   │   └── ...
+│   │
 │   └── misc/
 │       └── ...
 │
 ├── notebook/
-│   ├── topics/
+│   └── topics/
 │       ├── 00_entrada_saida.py
 │       ├── 01_estruturas_dados.py
 │       ├── 02_matematica.py
@@ -44,7 +46,6 @@ meu-repo/
 │
 ├── progress.png
 └── README.md
-```
 
 ---
 
