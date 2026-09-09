@@ -63,7 +63,7 @@ Em `notebook/topics` estão os templates que uso com mais frequência:
 
 O gráfico abaixo é atualizado automaticamente e mostra quantos problemas eu já resolvi em cada faixa de rating:
 
-<p align="center">
+<p align="left">
   <img src="progress.png" width="650">
 </p>
 
