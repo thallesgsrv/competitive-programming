@@ -75,12 +75,13 @@ Os arquivos em `notebook/topics/` funcionam como base para estudo e revisão rá
 
 A pasta `scripts/` contém utilitários para acompanhamento do desenvolvimento, incluindo `progress.py` e o cache de problemas. A imagem `progress.png` pode ser usada para visualizar a evolução ao longo do tempo.
 
+<p align="left">
+  <img src="progress.png" width="650" alt="Gráfico de progresso dos exercícios por faixa de dificuldade">
+</p>
+
 ## Objetivo
 
-- praticar programação competitiva
-- consolidar conhecimento em algoritmos e estruturas
-- manter templates reutilizáveis para provas e desafios
-- acompanhar o progresso por nível de dificuldade
+Manter uma rotina de treino em CP, guardar os templates que uso de verdade (em vez de reescrever tudo do zero cada questão) e ter um jeito visual de acompanhar minha evolução por nível de dificuldade.
 
 ## Tecnologias
 
