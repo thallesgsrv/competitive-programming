@@ -1,88 +1,93 @@
-# Competitive Programming
+# Algoritmos Avançados
 
-Repositório com minhas soluções de problemas de programação competitiva, principalmente do Codeforces, e alguns templates que uso pra consultar rápido durante as provas.
+Repositório pessoal de estudos em programação competitiva e algoritmos, com soluções de exercícios, templates prontos e materiais de consulta para revisão rápida.
 
 ## Estrutura
 
-Os problemas ficam organizados por faixa de rating:
-
 ```text
-meu-repo/
+Algoritmos Avançados/
+├── README.md
 ├── exercises/
 │   ├── 800-1200/
 │   ├── 1200-1600/
 │   ├── 1600+/
 │   └── misc/
-│
 ├── notebook/
 │   └── topics/
-│       ├── 00_entrada_saida.py
-│       ├── 01_estruturas_dados.py
-│       ├── 02_matematica.py
-│       ├── 03_progressoes.py
-│       ├── 04_combinatoria.py
-│       ├── 05_geometria.py
-│       ├── 06_guloso.py
-│       ├── 07_backtracking.py
-│       ├── 08_dp.py
-│       ├── 09_grafos.py
-│       ├── 10_dijkstra.py
-│       ├── 11_dsu.py
-│       ├── 12_kruskal.py
-│       ├── 13_topologico.py
-│       └── 14_jogos.py
-│
+│       ├── entrada_saida.py
+│       ├── data_structure/
+│       │   └── estruturas_dados.py
+│       ├── games/
+│       │   ├── backtracking.py
+│       │   ├── dp.py
+│       │   ├── games.py
+│       │   └── greedy.py
+│       ├── geometry/
+│       │   └── geometria.py
+│       ├── graph/
+│       │   ├── dijkstra.py
+│       │   ├── dsu.py
+│       │   ├── grafos.py
+│       │   ├── kruskal.py
+│       │   └── topologic.py
+│       └── math/
+│           ├── combinatoria.py
+│           ├── matematica.py
+│           └── progressoes.py
 ├── scripts/
+│   ├── problems_cache.json
 │   └── progress.py
-│
-├── progress.png
-└── README.md
+└── progress.png
 ```
 
-## Templates
+## Conteúdo
 
-Em `notebook/topics` estão os templates que uso com mais frequência:
+### Exercícios
 
-- [`00_entrada_saida.py`](notebook/topics/00_entrada_saida.py) — entrada e saída rápida
-- [`01_estruturas_dados.py`](notebook/topics/01_estruturas_dados.py) — estruturas de dados
-- [`02_matematica.py`](notebook/topics/02_matematica.py) — matemática básica
-- [`03_progressoes.py`](notebook/topics/03_progressoes.py) — progressões
-- [`04_combinatoria.py`](notebook/topics/04_combinatoria.py) — combinatória
-- [`05_geometria.py`](notebook/topics/05_geometria.py) — geometria computacional
-- [`06_guloso.py`](notebook/topics/06_guloso.py) — algoritmos gulosos
-- [`07_backtracking.py`](notebook/topics/07_backtracking.py) — backtracking
-- [`08_dp.py`](notebook/topics/08_dp.py) — programação dinâmica
-- [`09_grafos.py`](notebook/topics/09_grafos.py) — DFS e BFS
-- [`10_dijkstra.py`](notebook/topics/10_dijkstra.py) — menor caminho
-- [`11_dsu.py`](notebook/topics/11_dsu.py) — union-find (DSU)
-- [`12_kruskal.py`](notebook/topics/12_kruskal.py) — árvore geradora mínima
-- [`13_topologico.py`](notebook/topics/13_topologico.py) — ordenação topológica
-- [`14_jogos.py`](notebook/topics/14_jogos.py) — teoria dos jogos
+A pasta `exercises/` reúne soluções organizadas por faixa de dificuldade:
+
+- `800-1200/` — problemas básicos e iniciais
+- `1200-1600/` — problemas intermediários
+- `1600+/` — problemas mais avançados
+- `misc/` — desafios variados e templates extras
+
+### Templates e referências
+
+Os arquivos em `notebook/topics/` funcionam como base para estudo e revisão rápida:
+
+- [`entrada_saida.py`](notebook/topics/entrada_saida.py) — leitura, escrita e casos de teste
+- [`data_structure/estruturas_dados.py`](notebook/topics/data_structure/estruturas_dados.py) — estruturas básicas
+- [`games/backtracking.py`](notebook/topics/games/backtracking.py) — backtracking
+- [`games/dp.py`](notebook/topics/games/dp.py) — dinâmica
+- [`games/games.py`](notebook/topics/games/games.py) — teoria dos jogos e casos especiais
+- [`games/greedy.py`](notebook/topics/games/greedy.py) — algoritmos gulosos
+- [`geometry/geometria.py`](notebook/topics/geometry/geometria.py) — geometria computacional
+- [`graph/grafos.py`](notebook/topics/graph/grafos.py) — grafos, DFS/BFS
+- [`graph/dijkstra.py`](notebook/topics/graph/dijkstra.py) — menor caminho
+- [`graph/dsu.py`](notebook/topics/graph/dsu.py) — union-find
+- [`graph/kruskal.py`](notebook/topics/graph/kruskal.py) — árvore geradora mínima
+- [`graph/topologic.py`](notebook/topics/graph/topologic.py) — ordenação topológica
+- [`math/matematica.py`](notebook/topics/math/matematica.py) — matemática
+- [`math/combinatoria.py`](notebook/topics/math/combinatoria.py) — combinatória
+- [`math/progressoes.py`](notebook/topics/math/progressoes.py) — progressões e fórmulas
 
 ## Progresso
 
-O gráfico abaixo é atualizado automaticamente e mostra quantos problemas eu já resolvi em cada faixa de rating:
-
-<p align="left">
-  <img src="progress.png" width="650">
-</p>
-
-| Rating | Nível |
-|--------|-------|
-| 800–1200 | Básico |
-| 1200–1600 | Intermediário |
-| 1600+ | Avançado |
-
-Um script em `scripts/progress.py` conta as soluções em cada pasta, gera o gráfico com Matplotlib e atualiza a imagem via GitHub Actions toda vez que um novo problema é adicionado.
+A pasta `scripts/` contém utilitários para acompanhamento do desenvolvimento, incluindo `progress.py` e o cache de problemas. A imagem `progress.png` pode ser usada para visualizar a evolução ao longo do tempo.
 
 ## Objetivo
 
-Manter uma rotina de treino em CP, guardar os templates que uso de verdade (em vez de reescrever tudo do zero cada prova) e ter um jeito visual de acompanhar minha evolução por nível de dificuldade.
+- praticar programação competitiva
+- consolidar conhecimento em algoritmos e estruturas
+- manter templates reutilizáveis para provas e desafios
+- acompanhar o progresso por nível de dificuldade
 
 ## Tecnologias
 
-Python, Matplotlib e GitHub Actions.
+- Python
+- Matplotlib
+- GitHub Actions
 
 ---
 
-Thalles Saraiva
+Autor: Thalles Saraiva
